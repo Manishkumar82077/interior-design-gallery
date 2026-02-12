@@ -21,8 +21,8 @@ A responsive gallery feed application for browsing interior design images with t
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd gallery-feed-app
+git clone https://github.com/Manishkumar82077/interior-design-gallery
+cd interior-design-gallery
 ```
 
 2. Install dependencies:
@@ -76,11 +76,42 @@ The application uses 4 main tables:
 
 ## 🎯 Key Design Decisions
 
-1. **API Routes**: Used Next.js API routes for clean separation of concerns
-2. **Server Components**: Leveraged Next.js 14 server components for better performance
-3. **Tag-based Filtering**: Implemented efficient SQL queries for filtering
-4. **Image Optimization**: Used lazy loading and proper aspect ratios
-5. **Responsive Grid**: Mobile-first approach with Tailwind CSS grid
+- **API Routes (Next.js App Router)**  
+  Backend logic is implemented using Next.js API routes, ensuring a clean separation of concerns between data handling and UI rendering. This approach improves maintainability and scalability.
+
+- **Server Components (Next.js 14)**  
+  Server Components are leveraged wherever possible to minimize client-side JavaScript, improve SEO, and deliver faster initial page loads.
+
+- **Client Components Only When Necessary**  
+  Client components are limited to interactive features such as filtering, hover effects, and dynamic UI updates, reducing hydration overhead.
+
+- **Global State Management with Zustand**  
+  Zustand is used for lightweight and efficient global state management. Shared UI state such as selected tags and filters is centralized, avoiding prop drilling and unnecessary re-renders.
+
+- **Tag-based Filtering (SQL-level Optimization)**  
+  Filtering logic is handled at the database level using optimized SQL queries, reducing payload size and ensuring fast, scalable filtering.
+
+- **Image Optimization Strategy**  
+  Images are rendered using Next.js `Image` component with lazy loading, responsive sizing, and optimized formats to enhance performance and prevent layout shifts.
+
+- **Responsive Grid Layout**  
+  A mobile-first responsive grid is built using Tailwind CSS, ensuring a consistent and adaptive user experience across devices.
+
+- **Reusable Component Architecture**  
+  The application is structured around modular and reusable components, improving readability, testability, and development speed.
+
+- **Type Safety with TypeScript**  
+  TypeScript is used across the application for API contracts, database models, and UI components, reducing runtime errors and improving long-term maintainability.
+
+- **Performance & UX Enhancements**  
+  Skeleton loaders, smooth hover interactions, and clear visual feedback are implemented to improve perceived performance and usability.
+
+- **Scalable Project Structure**  
+  A feature-based folder organization is followed under the `app/` directory, making the codebase easy to extend and maintain.
+
+- **Production-Ready Practices**  
+  Environment-based configuration, structured error handling, and clean linted code ensure the application is deployment-ready.
+
 
 ## 🔍 API Endpoints
 
