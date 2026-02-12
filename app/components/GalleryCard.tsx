@@ -1,28 +1,54 @@
-// app/components/GalleryCard.tsx
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { GalleryImage } from '@/app/lib/types';
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
+import { GalleryImage } from "@/app/lib/types";
 
 interface GalleryCardProps {
   gallery: GalleryImage;
 }
 
 export default function GalleryCard({ gallery }: GalleryCardProps) {
-  const dateStr = new Date(gallery.created_at).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  const [showOverlay, setShowOverlay] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const dateStr = new Date(gallery.created_at).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // If overlay is hidden, show it and prevent navigation on the first tap
+    if (!showOverlay) {
+      e.preventDefault(); 
+      setShowOverlay(true);
+
+      // Clear any existing timer before starting a new one
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      // Auto-hide after 1.5 seconds
+      timerRef.current = setTimeout(() => {
+        setShowOverlay(false);
+      }, 1500);
+    }
+  };
 
   return (
     <Link
       href={`/gallery/${gallery.id}`}
       className="block"
+      onTouchStart={handleTouchStart}
     >
       <div className="group relative overflow-hidden rounded-lg bg-white shadow-sm cursor-pointer">
-
-        {/* Image */}
         <Image
           src={gallery.media_url}
           alt={gallery.profile_name}
@@ -32,45 +58,32 @@ export default function GalleryCard({ gallery }: GalleryCardProps) {
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
         />
 
-        {/* Compact overlay strip */}
         <div
-          className="
+          className={`
             absolute inset-x-0 bottom-0
             bg-white/95 backdrop-blur
             px-3 py-2
             transition-all duration-300 ease-out
-            translate-y-full opacity-0
-            group-hover:translate-y-0 group-hover:opacity-100
-          "
+            ${
+              showOverlay
+                ? "translate-y-0 opacity-100"
+                : "translate-y-full opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
+            }
+          `}
         >
           <div className="flex flex-col gap-1">
-
-            {/* Title */}
-            <h3 className="text-[12px] font-semibold text-gray-900 leading-tight truncate">
+            <h3 className="text-[12px] font-semibold text-gray-900 truncate">
               {gallery.profile_name}
             </h3>
-
-            {/* Meta row */}
             <div className="flex items-center justify-between text-[10px] text-gray-500">
-
-              {/* Left: photos + date */}
               <div className="flex items-center gap-1.5">
                 <span>{gallery.total_photos} photos</span>
                 <span className="w-1 h-1 rounded-full bg-gray-300" />
                 <span>{dateStr}</span>
               </div>
-
-              {/* Right: tag */}
-              {gallery.tags?.length > 0 && (
-                <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[9px] font-semibold text-black">
-                  #{gallery.tags[0].tag_display_name}
-                </span>
-              )}
             </div>
-
           </div>
         </div>
-
       </div>
     </Link>
   );
