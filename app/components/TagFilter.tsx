@@ -33,7 +33,7 @@ export default function TagFilter({
   }, [selectedTag, tags]); // Also listen to 'tags' to ensure they are loaded
 
   return (
-    <div className="mb-6 w-full">
+    <div className=" w-full">
       <div className="flex items-center gap-3 rounded-xl bg-gray-100/80 backdrop-blur px-3 py-2 shadow-sm">
         
         {onBack && (
