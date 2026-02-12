@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/gallery/[id]/route.ts
+ // app/api/gallery/[id]/route.ts
 
 import { NextResponse } from 'next/server';
 import pool from '@/app/lib/db';
