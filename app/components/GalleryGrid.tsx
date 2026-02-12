@@ -1,12 +1,13 @@
-// app/components/GalleryGrid.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Masonry from 'react-masonry-css';
 
 import { GalleryImage, GalleryTag } from '@/app/lib/types';
 import GalleryCard from './GalleryCard';
 import TagFilter from './TagFilter';
+import { useGalleryStore } from '@/app/store/galleryStore';
 
 const breakpointColumnsObj = {
   default: 5,
@@ -19,32 +20,46 @@ const breakpointColumnsObj = {
 export default function GalleryGrid() {
   const [galleries, setGalleries] = useState<GalleryImage[]>([]);
   const [tags, setTags] = useState<GalleryTag[]>([]);
-  const [selectedTag, setSelectedTag] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /* Fetch tags (runs once) */
-  useEffect(() => {
-    fetch('/api/tags')
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(setTags)
-      .catch(() => setError('Failed to load tags'));
-  }, []);
+  const selectedTag = useGalleryStore((s) => s.selectedTag);
+  const setSelectedTag = useGalleryStore((s) => s.setSelectedTag);
+  const hasHydrated = useGalleryStore((s) => s.hasHydrated);
 
-  /* Trigger loading BEFORE effect */
-  useEffect(() => {
-    setLoading(true);
-  }, [selectedTag]);
+  const tagsFetchedRef = useRef(false);
 
-  /* Fetch galleries (side effect only) */
+  /* ✅ Fetch TAGS (once) */
   useEffect(() => {
-    let cancelled = false;
+    if (!hasHydrated || tagsFetchedRef.current) return;
 
-    const fetchGalleries = async () => {
+    tagsFetchedRef.current = true;
+    const controller = new AbortController();
+
+    (async () => {
       try {
+        const res = await fetch('/api/tags', { signal: controller.signal });
+        if (!res.ok) throw new Error();
+        setTags(await res.json());
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          setError('Failed to load tags');
+        }
+      }
+    })();
+
+    return () => controller.abort();
+  }, [hasHydrated]);
+
+  /* ✅ Fetch GALLERIES on tag change */
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        setLoading(true);
         setError(null);
 
         const url =
@@ -52,29 +67,32 @@ export default function GalleryGrid() {
             ? '/api/galleries'
             : `/api/galleries?tagId=${selectedTag}`;
 
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error();
 
-        const data = await res.json();
-
-        if (!cancelled) {
-          setGalleries(data);
-          setLoading(false);
-        }
-      } catch {
-        if (!cancelled) {
+        setGalleries(await res.json());
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
           setError('Failed to load galleries');
+        }
+      } finally {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
-    };
+    })();
 
-    fetchGalleries();
+    return () => controller.abort();
+  }, [selectedTag, hasHydrated]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedTag]);
+  /* ✅ JSX guard (NOT hook guard) */
+  if (!hasHydrated) {
+    return (
+      <div className="mx-auto max-w-[1600px] px-3 sm:px-4">
+        <GallerySkeleton />
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -102,21 +120,19 @@ export default function GalleryGrid() {
 
       {!loading && galleries.length > 0 && (
         <Masonry
-  breakpointCols={breakpointColumnsObj}
-  className="flex w-auto gap-3"
-  columnClassName="flex flex-col gap-3"
->
-  {galleries.map((gallery) => (
-    <GalleryCard key={gallery.id} gallery={gallery} />
-  ))}
-</Masonry>
-
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-auto gap-3"
+          columnClassName="flex flex-col gap-3"
+        >
+          {galleries.map((gallery) => (
+            <GalleryCard key={gallery.id} gallery={gallery} />
+          ))}
+        </Masonry>
       )}
     </div>
   );
 }
 
-/* Skeleton loader */
 function GallerySkeleton() {
   return (
     <Masonry
@@ -133,4 +149,3 @@ function GallerySkeleton() {
     </Masonry>
   );
 }
-

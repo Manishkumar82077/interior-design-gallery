@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 interface GalleryState {
   selectedTag: string;
   setSelectedTag: (tagId: string) => void;
+  hasHydrated: boolean;
 }
 
 export const useGalleryStore = create<GalleryState>()(
@@ -11,9 +12,13 @@ export const useGalleryStore = create<GalleryState>()(
     (set) => ({
       selectedTag: 'all',
       setSelectedTag: (tagId) => set({ selectedTag: tagId }),
+      hasHydrated: false,
     }),
     {
-      name: 'gallery-filter', // key in localStorage
+      name: 'gallery-filter',
+      onRehydrateStorage: () => (state) => {
+        if (state) state.hasHydrated = true;
+      },
     }
   )
 );
