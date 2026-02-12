@@ -1,9 +1,8 @@
-// app/components/GalleryCard.tsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { GalleryImage } from "@/app/lib/types";
 
 interface GalleryCardProps {
@@ -12,7 +11,8 @@ interface GalleryCardProps {
 
 export default function GalleryCard({ gallery }: GalleryCardProps) {
   const [showOverlay, setShowOverlay] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTapRef = useRef<number>(0);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const dateStr = new Date(gallery.created_at).toLocaleDateString("en-US", {
     month: "short",
@@ -20,34 +20,36 @@ export default function GalleryCard({ gallery }: GalleryCardProps) {
     year: "numeric",
   });
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Desktop → normal navigation
+    if (window.innerWidth >= 1024) return;
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // If overlay is hidden, show it and prevent navigation on the first tap
-    if (!showOverlay) {
-      e.preventDefault(); 
-      setShowOverlay(true);
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
 
-      // Clear any existing timer before starting a new one
-      if (timerRef.current) clearTimeout(timerRef.current);
-
-      // Auto-hide after 1.5 seconds
-      timerRef.current = setTimeout(() => {
-        setShowOverlay(false);
-      }, 1500);
+    // ✅ Double tap → allow navigation
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      return;
     }
+
+    // ❌ Single tap → prevent navigation
+    e.preventDefault();
+    lastTapRef.current = now;
+
+    setShowOverlay(true);
+
+    // Auto-hide overlay
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setShowOverlay(false);
+    }, 1500);
   };
 
   return (
     <Link
       href={`/gallery/${gallery.id}`}
       className="block"
-      onTouchStart={handleTouchStart}
+      onClick={handleClick}
     >
       <div className="group relative overflow-hidden rounded-lg bg-white shadow-sm cursor-pointer">
         <Image
