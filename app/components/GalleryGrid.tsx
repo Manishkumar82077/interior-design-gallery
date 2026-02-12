@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Masonry from 'react-masonry-css';
 
 import { GalleryImage, GalleryTag } from '@/app/lib/types';
@@ -23,22 +23,22 @@ export default function GalleryGrid() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* Zustand */
   const selectedTag = useGalleryStore((s) => s.selectedTag);
   const setSelectedTag = useGalleryStore((s) => s.setSelectedTag);
   const hasHydrated = useGalleryStore((s) => s.hasHydrated);
 
-  const tagsFetchedRef = useRef(false);
-
-  /* ✅ Fetch TAGS (once) */
+  /* ✅ Fetch tags (once, after hydration) */
   useEffect(() => {
-    if (!hasHydrated || tagsFetchedRef.current) return;
+    if (!hasHydrated) return;
 
-    tagsFetchedRef.current = true;
     const controller = new AbortController();
 
-    (async () => {
+    const fetchTags = async () => {
       try {
-        const res = await fetch('/api/tags', { signal: controller.signal });
+        const res = await fetch('/api/tags', {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error();
         setTags(await res.json());
       } catch (err: any) {
@@ -46,18 +46,19 @@ export default function GalleryGrid() {
           setError('Failed to load tags');
         }
       }
-    })();
+    };
 
+    fetchTags();
     return () => controller.abort();
   }, [hasHydrated]);
 
-  /* ✅ Fetch GALLERIES on tag change */
+  /* ✅ Fetch galleries (ONLY when tag changes & hydrated) */
   useEffect(() => {
     if (!hasHydrated) return;
 
     const controller = new AbortController();
 
-    (async () => {
+    const fetchGalleries = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -67,7 +68,9 @@ export default function GalleryGrid() {
             ? '/api/galleries'
             : `/api/galleries?tagId=${selectedTag}`;
 
-        const res = await fetch(url, { signal: controller.signal });
+        const res = await fetch(url, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error();
 
         setGalleries(await res.json());
@@ -80,12 +83,13 @@ export default function GalleryGrid() {
           setLoading(false);
         }
       }
-    })();
+    };
 
+    fetchGalleries();
     return () => controller.abort();
   }, [selectedTag, hasHydrated]);
 
-  /* ✅ JSX guard (NOT hook guard) */
+  /* ✅ Safe render guards (AFTER hooks) */
   if (!hasHydrated) {
     return (
       <div className="mx-auto max-w-[1600px] px-3 sm:px-4">
@@ -133,6 +137,7 @@ export default function GalleryGrid() {
   );
 }
 
+/* Skeleton loader */
 function GallerySkeleton() {
   return (
     <Masonry
