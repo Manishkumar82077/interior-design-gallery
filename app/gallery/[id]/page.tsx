@@ -3,8 +3,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import getGalleryDetail from '@/app/services/getGalleryDetail';
+import { GalleryDetail } from '@/app/lib/types';
 import SimilarImages from '@/app/components/SimilarImages';
+
+async function getGalleryDetail(id: string): Promise<GalleryDetail | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/gallery/${id}`, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  }
+}
 
 export default async function GalleryDetailPage({
   params,
