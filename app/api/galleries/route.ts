@@ -3,34 +3,22 @@
 
 import { NextResponse } from 'next/server';
 import pool from '@/app/lib/db';
-import { GalleryImage, GalleryTag } from '@/app/lib/types';
+import { GalleryImage } from '@/app/lib/types';
 import { RowDataPacket } from 'mysql2';
-
-interface GalleryRow extends RowDataPacket {
-  id: number;
-  media_url: string;
-  created_at: string;
-  updated_at: string;
-  created_by_user_id: string;
-  profile_name: string;
-  profile_picture: string | null;
-  total_photos: number;
-}
-
-interface TagRow extends RowDataPacket {
-  id: number;
-  tag: string;
-  tag_display_name: string;
-  type: string;
-}
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const tagId = searchParams.get('tagId');
 
+    /**
+     * OPTIMIZATION:
+     * 1. Use LEFT JOIN to get tags in the same query.
+     * 2. Use JSON_ARRAYAGG to format tags as a JSON array directly in MySQL.
+     * 3. Use a Subquery if tagId is provided to maintain correct filtering logic.
+     */
     let query = `
-      SELECT DISTINCT
+      SELECT 
         pmg.id,
         pmg.media_url,
         pmg.created_at,
@@ -38,7 +26,24 @@ export async function GET(request: Request) {
         pmg.created_by_user_id,
         dp.profile_name,
         dp.profile_picture,
-        dp.total_photo_uploaded as total_photos
+        dp.total_photo_uploaded as total_photos,
+        -- Aggregate tags into a JSON string
+        COALESCE(
+          (
+            SELECT JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', pgt.id,
+                'tag', pgt.tag,
+                'tag_display_name', pgt.tag_display_name,
+                'type', pgt.type
+              )
+            )
+            FROM project_media_galleries_tag_id_links pmgtl
+            INNER JOIN project_gallery_tags pgt ON pmgtl.project_gallery_tag_id = pgt.id
+            WHERE pmgtl.project_media_gallery_id = pmg.id
+          ), 
+          JSON_ARRAY()
+        ) as tags
       FROM project_media_galleries pmg
       INNER JOIN digital_profiles dp 
         ON pmg.created_by_user_id = dp.contractor_uuid
@@ -47,49 +52,32 @@ export async function GET(request: Request) {
     const params: any[] = [];
 
     if (tagId && tagId !== 'all') {
+      // Filter galleries that have the specific tag
       query += `
-        INNER JOIN project_media_galleries_tag_id_links pmgtl 
-          ON pmg.id = pmgtl.project_media_gallery_id
-        WHERE pmgtl.project_gallery_tag_id = ?
+        INNER JOIN project_media_galleries_tag_id_links filter_tags 
+          ON pmg.id = filter_tags.project_media_gallery_id
+        WHERE filter_tags.project_gallery_tag_id = ?
       `;
       params.push(tagId);
     }
 
     query += ` ORDER BY pmg.created_at DESC LIMIT 100`;
 
-    const [galleries] = await pool.query<GalleryRow[]>(query, params);
+    const [rows] = await pool.query<RowDataPacket[]>(query, params);
 
-    // Fetch tags for each gallery
-    const galleriesWithTags: GalleryImage[] = await Promise.all(
-      galleries.map(async (gallery): Promise<GalleryImage> => {
-        const [tags] = await pool.query<TagRow[]>(
-          `
-          SELECT DISTINCT
-            pgt.id,
-            pgt.tag,
-            pgt.tag_display_name,
-            pgt.type
-          FROM project_gallery_tags pgt
-          INNER JOIN project_media_galleries_tag_id_links pmgtl 
-            ON pgt.id = pmgtl.project_gallery_tag_id
-          WHERE pmgtl.project_media_gallery_id = ?
-        `,
-          [gallery.id]
-        );
-
-        return {
-          id: gallery.id,
-          media_url: gallery.media_url,
-          created_at: gallery.created_at,
-          updated_at: gallery.updated_at,
-          created_by_user_id: gallery.created_by_user_id,
-          profile_name: gallery.profile_name,
-          profile_picture: gallery.profile_picture,
-          total_photos: gallery.total_photos,
-          tags: tags as GalleryTag[],
-        };
-      })
-    );
+    // MySQL JSON_ARRAYAGG might return a string or an object depending on the driver configuration
+    const galleriesWithTags: GalleryImage[] = rows.map((row) => ({
+      id: row.id,
+      media_url: row.media_url,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      created_by_user_id: row.created_by_user_id,
+      profile_name: row.profile_name,
+      profile_picture: row.profile_picture,
+      total_photos: row.total_photos,
+      // Parse JSON if the driver returns it as a string
+      tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags,
+    }));
 
     return NextResponse.json(galleriesWithTags);
   } catch (error) {

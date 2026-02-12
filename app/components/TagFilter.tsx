@@ -1,3 +1,4 @@
+// app/components/TagFilter.tsx
 'use client';
 
 import { GalleryTag } from '@/app/lib/types';

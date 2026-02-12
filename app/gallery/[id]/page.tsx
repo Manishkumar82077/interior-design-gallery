@@ -31,7 +31,7 @@ export default async function GalleryDetailPage({
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 py-4 sm:px-6 lg:px-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
@@ -50,7 +50,7 @@ export default async function GalleryDetailPage({
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero Card */}
         <section className="overflow-hidden rounded-2xl bg-white shadow-md">
           {/* Hero Image */}
