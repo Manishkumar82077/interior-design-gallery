@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-full px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 text-center">
+        <header className="mb-4 text-center">
           <h1 className="text-4xl font-extrabold text-gray-900">
             Interior Design Gallery
           </h1>

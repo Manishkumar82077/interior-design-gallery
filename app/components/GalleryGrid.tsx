@@ -106,7 +106,7 @@ export default function GalleryGrid() {
           'z-40' ensures it stays above the images.
           'bg-white/90' with 'backdrop-blur' makes it look premium. 
       */}
-      <div className="sticky top-0 z-40 bg-white/90 py-2 backdrop-blur-md border-b border-gray-100 -mx-3 px-3 sm:-mx-4 sm:px-4">
+      <div className="sticky top-0 z-40 bg-white/90 py-3 backdrop-blur-md border-b border-gray-100 -mx-3 px-3 sm:-mx-4 sm:px-4">
         <TagFilter
           tags={tags}
           selectedTag={selectedTag}
