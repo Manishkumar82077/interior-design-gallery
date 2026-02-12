@@ -4,10 +4,7 @@ export default async function getGalleryDetail(
   id: string
 ): Promise<GalleryDetail | null> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-    const response = await fetch(`${baseUrl}/api/gallery/${id}`, {
+    const response = await fetch(`/api/gallery/${id}`, {
       cache: "no-store",
     });
 
