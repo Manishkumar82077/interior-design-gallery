@@ -10,7 +10,7 @@ A responsive gallery feed application for browsing interior design images with t
 
 ![Home Page](https://github.com/Manishkumar82077/interior-design-gallery/blob/main/ScreenShoots/image1.png?raw=true)
 
-![Gallery Page](https://github.com/Manishkumar82077/interior-design-gallery/blob/main/ScreenShoots/image3.png?raw=true)
+![Gallery Page](https://github.com/Manishkumar82077/interior-design-gallery/blob/main/ScreenShoots/image2.png?raw=true)
 
 
 
