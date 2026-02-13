@@ -15,7 +15,6 @@ export default async function GalleryDetailPage({
   const { id } = await params;
   console.log('Fetching gallery detail for ID:', id);
   const gallery = await getGalleryDetailLogic(id);
-  console.log('Gallery Detail:', gallery);
 
   if (!gallery) notFound();
 
@@ -73,14 +72,17 @@ export default async function GalleryDetailPage({
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             {/* Profile */}
-            <div className="flex items-center gap-3">
+            <Link
+              href={`/profile/${gallery.created_by_user_id}`}
+              className="flex items-center gap-3 group"
+            >
               {gallery.profile_picture ? (
                 <Image
                   src={gallery.profile_picture}
                   alt={gallery.profile_name}
                   width={44}
                   height={44}
-                  className="h-11 w-11 rounded-full object-cover ring-1 ring-gray-300"
+                  className="h-11 w-11 rounded-full object-cover ring-1 ring-gray-300 group-hover:ring-blue-500 transition"
                 />
               ) : (
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-800">
@@ -93,14 +95,17 @@ export default async function GalleryDetailPage({
                   <User className="h-4 w-4" />
                   Profile
                 </div>
-                <h1 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
+
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight group-hover:underline">
                   {gallery.profile_name}
                 </h1>
+
                 <p className="text-sm text-gray-600">
                   {gallery.total_photos} photos
                 </p>
               </div>
-            </div>
+            </Link>
+
 
             {/* Posted Date */}
             <div className="text-right">
