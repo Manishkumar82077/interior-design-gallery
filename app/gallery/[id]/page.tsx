@@ -5,9 +5,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import SimilarImages from '@/app/components/SimilarImages';
 import { getGalleryDetailLogic } from '@/app/api/gallery/[id]/route';
-import { Download } from 'lucide-react';
 import ImageDownloadIcon from '@/app/components/ImageDownloadIcon';
-
+import { Calendar, Hash, ImageIcon, User } from 'lucide-react';
 export default async function GalleryDetailPage({
   params,
 }: {
@@ -69,59 +68,126 @@ export default async function GalleryDetailPage({
           </div>
         </section>
 
-
-
-        {/* Details BELOW the image */}
-        <section className="mt-4 rounded-xl bg-white p-4 sm:mt-6 sm:rounded-2xl sm:p-6 lg:p-8 shadow-md">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        {/* Details BELOW the image – Labeled, Monochrome, Compact */}
+        <section className="mt-4 rounded-xl bg-white px-4 py-4 sm:mt-6 sm:px-6 sm:py-5 lg:px-8 shadow-sm space-y-6">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
             {/* Profile */}
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3">
               {gallery.profile_picture ? (
                 <Image
                   src={gallery.profile_picture}
                   alt={gallery.profile_name}
-                  width={48}
-                  height={48}
-                  className="rounded-full object-cover ring-2 ring-white shadow-sm sm:h-14 sm:w-14"
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full object-cover ring-1 ring-gray-300"
                 />
               ) : (
-                <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-blue-100 text-lg sm:text-xl font-bold text-blue-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-800">
                   {gallery.profile_name.charAt(0)}
                 </div>
               )}
 
               <div>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                  <User className="h-4 w-4" />
+                  Profile
+                </div>
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
                   {gallery.profile_name}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500">
-                  {gallery.total_photos} site photos
+                <p className="text-sm text-gray-600">
+                  {gallery.total_photos} photos
                 </p>
               </div>
             </div>
 
-            {/* Date */}
-            <span className="text-xs sm:text-sm text-gray-400">
-              Posted on {formattedDate}
-            </span>
+            {/* Posted Date */}
+            <div className="text-right">
+              <div className="flex items-center justify-end gap-1.5 text-sm font-medium text-gray-700">
+                <Calendar className="h-4 w-4" />
+                Posted
+              </div>
+              <p className="text-sm text-gray-900 whitespace-nowrap">
+                {formattedDate}
+              </p>
+            </div>
           </div>
 
-          {/* Tags */}
+          {/* Divider */}
+          <div className="h-px bg-gray-200" />
+
+          {/* Meta Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* Image ID */}
+            <div>
+              <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                <ImageIcon className="h-4 w-4" />
+                Image ID
+              </div>
+              <p className="text-sm font-semibold text-gray-900">
+                {gallery.id}
+              </p>
+            </div>
+
+            {/* Updated */}
+            <div>
+              <p className="text-sm font-medium text-gray-700">
+                Last Updated
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                {new Date(gallery.updated_at).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+
+            {/* Similar Images */}
+            <div>
+              <p className="text-sm font-medium text-gray-700">
+                Similar Images
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                {gallery.similar_images.length}
+              </p>
+            </div>
+
+            {/* Created By */}
+            <div className="lg:col-span-3">
+              <p className="text-sm font-medium text-gray-700">
+                Created By User
+              </p>
+              <p className="text-sm font-semibold text-gray-900 break-all">
+                {gallery.created_by_user_id}
+              </p>
+            </div>
+          </div>
+
+          {/* Hashtags */}
+          {/* Hashtags */}
           {gallery.tags.length > 0 && (
-            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2">
-              {gallery.tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="rounded-full bg-indigo-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-semibold text-indigo-700"
-                >
-                  #{tag.tag_display_name}
-                </span>
-              ))}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-700">
+                Hashtags
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {gallery.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-400 px-3 py-1 text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition"
+                  >
+                    <Hash className="h-4 w-4" />
+                    {tag.tag_display_name}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
+
         </section>
-
-
 
         {/* Similar Images */}
         <SimilarImages images={gallery.similar_images} />
