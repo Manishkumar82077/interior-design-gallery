@@ -1,7 +1,6 @@
-// app/components/TagFilter.tsx
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { GalleryTag } from '@/app/lib/types';
 import { ArrowLeft, Check, X } from 'lucide-react';
 
@@ -21,22 +20,46 @@ export default function TagFilter({
   onBack,
 }: TagFilterProps) {
   const activeTagRef = useRef<HTMLButtonElement | null>(null);
+  // This ref ensures we only scroll once per page load
+  const hasScrolled = useRef(false);
 
-  // Auto-scroll logic: finds the first tag that is currently selected
+  // Sort selected tags by visual order (not click order)
+  const sortedSelectedTags = useMemo(() => {
+    return [...selectedTags].sort((a, b) => {
+      const ia = tags.findIndex(t => t.id.toString() === a);
+      const ib = tags.findIndex(t => t.id.toString() === b);
+      return ia - ib;
+    });
+  }, [selectedTags, tags]);
+
+  // Scroll ONLY once on initial load/reload
   useEffect(() => {
-    if (activeTagRef.current) {
-      activeTagRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center', 
-      });
+    // Only proceed if we have tags and haven't scrolled yet in this session
+    if (tags.length > 0 && !hasScrolled.current) {
+      
+      // We use a small timeout to give the browser time to paint 
+      // the buttons and calculate their positions in the flex container
+      const timer = setTimeout(() => {
+        if (activeTagRef.current) {
+          activeTagRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center',
+          });
+          
+          // Mark as scrolled so manual clicks don't cause jumps
+          hasScrolled.current = true;
+        }
+      }, 150); // 150ms is safer for cold reloads
+
+      return () => clearTimeout(timer);
     }
-  }, [selectedTags, tags]); 
+  }, [tags, selectedTags]); // Runs when data arrives or selection is initialized
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-3 rounded-xl bg-gray-100/80 backdrop-blur px-3 py-2 shadow-sm">
-        
+
         {onBack && (
           <button
             onClick={onBack}
@@ -51,24 +74,25 @@ export default function TagFilter({
             label="All"
             selected={selectedTags.length === 0}
             onClick={onClear}
-            // If nothing is selected, "All" is our scroll target
-            buttonRef={selectedTags.length === 0 ? activeTagRef : null}
+            // If "All" is active, it's our scroll target on reload
+            buttonRef={selectedTags.length === 0 ? activeTagRef : undefined}
           />
 
           {tags.map((tag) => {
-            const isSelected = selectedTags.includes(tag.id.toString());
-            
-            // We attach the ref to the first selected tag we encounter in the map
-            // This ensures the scroll bar moves to the first active filter
-            const isFirstSelected = isSelected && selectedTags[0] === tag.id.toString();
+            const tagId = tag.id.toString();
+            const isSelected = selectedTags.includes(tagId);
+
+            // Determine if this is the first selected tag in the horizontal list
+            const isScrollTarget =
+              isSelected && sortedSelectedTags[0] === tagId;
 
             return (
               <TagButton
                 key={tag.id}
                 label={tag.tag_display_name}
                 selected={isSelected}
-                onClick={() => onTagToggle(tag.id.toString())}
-                buttonRef={isFirstSelected ? activeTagRef : null}
+                onClick={() => onTagToggle(tagId)}
+                buttonRef={isScrollTarget ? activeTagRef : undefined}
               />
             );
           })}
@@ -87,20 +111,20 @@ function TagButton({
   label: string;
   selected: boolean;
   onClick: () => void;
-  buttonRef: React.RefObject<HTMLButtonElement | null> | null;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
 }) {
   return (
     <button
       ref={buttonRef}
       onClick={onClick}
       className={`flex-shrink-0 flex items-center gap-2 rounded-full px-5 py-1.5 text-sm font-medium transition-all cursor-pointer
-        ${selected
-          ? 'bg-black text-white shadow-md scale-[1.02]'
-          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 hover:border-gray-600'
+        ${
+          selected
+            ? 'bg-black text-white shadow-md scale-[1.02]'
+            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 hover:border-gray-600'
         }`}
     >
-      {/* If it's selected and not the "All" button, show an X to remove it */}
-      {selected && label !== "All" ? <X size={14} /> : selected && <Check size={14} />}
+      {selected && label !== 'All' ? <X size={14} /> : selected && <Check size={14} />}
       {label}
     </button>
   );
