@@ -149,8 +149,8 @@ MIT
 
 ## 👤 Author
 
-Your Name
+Manish kumar
 
 ---
 
-Built with ❤️ for the FullStack Developer Assignment
+Built with ❤️ for the Frontend  Developer Assignment
