@@ -21,6 +21,51 @@ A responsive gallery feed application for browsing interior design images with t
 - **Database**: MySQL (Aiven Cloud)
 - **Deployment**: Vercel
 
+## 🎯 Key Design Decisions
+
+- **API Routes (Next.js App Router)**  
+  Backend logic is implemented using Next.js API routes, ensuring a clean separation of concerns between data handling and UI rendering. This approach improves maintainability and scalability.
+
+- **Server Components (Next.js 14)**  
+  Server Components are leveraged wherever possible to minimize client-side JavaScript, improve SEO, and deliver faster initial page loads.
+
+- **Client Components Only When Necessary**  
+  Client components are limited to interactive features such as filtering, hover effects, and dynamic UI updates, reducing hydration overhead.
+
+- **Global State Management with Zustand**  
+  Zustand is used for lightweight and efficient global state management. Shared UI state such as selected tags and filters is centralized, avoiding prop drilling and unnecessary re-renders.
+
+- **Tag-based Filtering (SQL-level Optimization)**  
+  Filtering logic is handled at the database level using optimized SQL queries, reducing payload size and ensuring fast, scalable filtering.
+
+- **Image Optimization Strategy**  
+  Images are rendered using Next.js `Image` component with lazy loading, responsive sizing, and optimized formats to enhance performance and prevent layout shifts.
+
+- **Responsive Grid Layout**  
+  A mobile-first responsive grid is built using Tailwind CSS, ensuring a consistent and adaptive user experience across devices.
+
+- **Reusable Component Architecture**  
+  The application is structured around modular and reusable components, improving readability, testability, and development speed.
+
+- **Type Safety with TypeScript**  
+  TypeScript is used across the application for API contracts, database models, and UI components, reducing runtime errors and improving long-term maintainability.
+
+- **Performance & UX Enhancements**  
+  Skeleton loaders, smooth hover interactions, and clear visual feedback are implemented to improve perceived performance and usability.
+
+- **Scalable Project Structure**  
+  A feature-based folder organization is followed under the `app/` directory, making the codebase easy to extend and maintain.
+
+- **Production-Ready Practices**  
+  Environment-based configuration, structured error handling, and clean linted code ensure the application is deployment-ready.
+
+
+## 🔍 API Endpoints
+
+- `GET /api/tags` - Fetch all available tags
+- `GET /api/galleries?tagId=X` - Fetch galleries (optionally filtered by tag)
+- `GET /api/gallery/[id]` - Fetch gallery detail with similar images
+
 ## 📦 Installation
 
 1. Clone the repository:
@@ -78,50 +123,7 @@ The application uses 4 main tables:
 - `project_gallery_tags`: Category tags
 - `project_media_galleries_tag_id_links`: Many-to-many relationship between galleries and tags
 
-## 🎯 Key Design Decisions
 
-- **API Routes (Next.js App Router)**  
-  Backend logic is implemented using Next.js API routes, ensuring a clean separation of concerns between data handling and UI rendering. This approach improves maintainability and scalability.
-
-- **Server Components (Next.js 14)**  
-  Server Components are leveraged wherever possible to minimize client-side JavaScript, improve SEO, and deliver faster initial page loads.
-
-- **Client Components Only When Necessary**  
-  Client components are limited to interactive features such as filtering, hover effects, and dynamic UI updates, reducing hydration overhead.
-
-- **Global State Management with Zustand**  
-  Zustand is used for lightweight and efficient global state management. Shared UI state such as selected tags and filters is centralized, avoiding prop drilling and unnecessary re-renders.
-
-- **Tag-based Filtering (SQL-level Optimization)**  
-  Filtering logic is handled at the database level using optimized SQL queries, reducing payload size and ensuring fast, scalable filtering.
-
-- **Image Optimization Strategy**  
-  Images are rendered using Next.js `Image` component with lazy loading, responsive sizing, and optimized formats to enhance performance and prevent layout shifts.
-
-- **Responsive Grid Layout**  
-  A mobile-first responsive grid is built using Tailwind CSS, ensuring a consistent and adaptive user experience across devices.
-
-- **Reusable Component Architecture**  
-  The application is structured around modular and reusable components, improving readability, testability, and development speed.
-
-- **Type Safety with TypeScript**  
-  TypeScript is used across the application for API contracts, database models, and UI components, reducing runtime errors and improving long-term maintainability.
-
-- **Performance & UX Enhancements**  
-  Skeleton loaders, smooth hover interactions, and clear visual feedback are implemented to improve perceived performance and usability.
-
-- **Scalable Project Structure**  
-  A feature-based folder organization is followed under the `app/` directory, making the codebase easy to extend and maintain.
-
-- **Production-Ready Practices**  
-  Environment-based configuration, structured error handling, and clean linted code ensure the application is deployment-ready.
-
-
-## 🔍 API Endpoints
-
-- `GET /api/tags` - Fetch all available tags
-- `GET /api/galleries?tagId=X` - Fetch galleries (optionally filtered by tag)
-- `GET /api/gallery/[id]` - Fetch gallery detail with similar images
 
 ## 📝 Assumptions Made
 
