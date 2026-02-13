@@ -3,9 +3,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface GalleryState {
-  selectedTag: string;
-  setSelectedTag: (tagId: string) => void;
-
+  selectedTags: string[]; 
+  toggleTag: (tagId: string) => void;
+  resetTags: () => void;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
 }
@@ -13,9 +13,14 @@ interface GalleryState {
 export const useGalleryStore = create<GalleryState>()(
   persist(
     (set) => ({
-      selectedTag: 'all',
-      setSelectedTag: (tagId) => set({ selectedTag: tagId }),
-
+      selectedTags: [], 
+      toggleTag: (tagId) => 
+        set((state) => ({
+          selectedTags: state.selectedTags.includes(tagId)
+            ? state.selectedTags.filter((id) => id !== tagId) 
+            : [...state.selectedTags, tagId], 
+        })),
+      resetTags: () => set({ selectedTags: [] }),
       hasHydrated: false,
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
