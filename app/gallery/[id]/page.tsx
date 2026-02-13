@@ -66,48 +66,48 @@ export default async function GalleryDetailPage({
   </div>
 </section>
 
-{/* Details BELOW the image */}
-<section className="mt-6 rounded-2xl bg-white p-6 sm:p-8 shadow-md">
-  <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+ {/* Details BELOW the image */}
+<section className="mt-4 rounded-xl bg-white p-4 sm:mt-6 sm:rounded-2xl sm:p-6 lg:p-8 shadow-md">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
     {/* Profile */}
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3 sm:gap-4">
       {gallery.profile_picture ? (
         <Image
           src={gallery.profile_picture}
           alt={gallery.profile_name}
-          width={56}
-          height={56}
-          className="rounded-full object-cover ring-2 ring-white shadow-sm"
+          width={48}
+          height={48}
+          className="rounded-full object-cover ring-2 ring-white shadow-sm sm:h-14 sm:w-14"
         />
       ) : (
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-600">
+        <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-blue-100 text-lg sm:text-xl font-bold text-blue-600">
           {gallery.profile_name.charAt(0)}
         </div>
       )}
 
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
           {gallery.profile_name}
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500">
           {gallery.total_photos} site photos
         </p>
       </div>
     </div>
 
     {/* Date */}
-    <span className="text-sm text-gray-400">
+    <span className="text-xs sm:text-sm text-gray-400">
       Posted on {formattedDate}
     </span>
   </div>
 
   {/* Tags */}
   {gallery.tags.length > 0 && (
-    <div className="mt-6 flex flex-wrap gap-2">
+    <div className="mt-4 sm:mt-6 flex flex-wrap gap-2">
       {gallery.tags.map((tag) => (
         <span
           key={tag.id}
-          className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
+          className="rounded-full bg-indigo-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-semibold text-indigo-700"
         >
           #{tag.tag_display_name}
         </span>
@@ -115,6 +115,7 @@ export default async function GalleryDetailPage({
     </div>
   )}
 </section>
+
 
 
         {/* Similar Images */}
