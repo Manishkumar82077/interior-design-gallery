@@ -65,7 +65,7 @@ export default async function ProfilePage({
           </div>
         </header>
 
-        {/* Cover Image */}
+        {/* Cover Image
         {profile.cover_image && (
           <div className="relative h-64 w-full overflow-hidden rounded-xl mt-2">
             <Image
@@ -76,7 +76,7 @@ export default async function ProfilePage({
               className="object-cover"
             />
           </div>
-        )}
+        )} */}
 
         {/* Profile Info */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
