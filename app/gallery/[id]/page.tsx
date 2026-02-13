@@ -53,15 +53,15 @@ export default async function GalleryDetailPage({
       <div className="mx-auto max-w-full px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero Card */}
        {/* Hero Image */}
-<section className="overflow-hidden rounded-2xl bg-white shadow-md">
-  <div className="relative aspect-video w-full overflow-hidden">
+<section className="rounded-2xl bg-black">
+  <div className="relative w-full h-[220px] sm:h-[360px] lg:h-[480px]">
     <Image
       src={gallery.media_url}
       alt={gallery.profile_name}
       fill
       priority
-      className="object-cover"
-      sizes="(max-width: 1024px) 100vw, 1200px"
+      className="object-contain"
+      sizes="100vw"
     />
   </div>
 </section>
