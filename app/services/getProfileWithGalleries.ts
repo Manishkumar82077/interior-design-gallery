@@ -32,14 +32,6 @@ export async function getProfileWithGalleries(
       dp.created_at AS profile_created_at,
       dp.updated_at AS profile_updated_at,
 
-      (
-        SELECT pmg2.media_url
-        FROM project_media_galleries pmg2
-        WHERE pmg2.created_by_user_id = dp.contractor_uuid
-        ORDER BY pmg2.id DESC
-        LIMIT 1
-      ) AS cover_image,
-
       COALESCE(
         (
           SELECT JSON_ARRAYAGG(
@@ -67,10 +59,10 @@ export async function getProfileWithGalleries(
   );
 
   if (!rows.length) {
-    return null; // ❌ no galleries → no profile
+    return null; // no galleries → no profile
   }
 
-  /* -------- DERIVED PROFILE -------- */
+  /* -------- PROFILE (PURE DB FIELDS) -------- */
   const profile: DigitalProfile = {
     id: rows[0].profile_id,
     contractor_uuid: rows[0].contractor_uuid,
@@ -79,7 +71,6 @@ export async function getProfileWithGalleries(
     total_photo_uploaded: rows[0].total_photo_uploaded,
     created_at: rows[0].profile_created_at,
     updated_at: rows[0].profile_updated_at,
-    cover_image: rows[0].cover_image ?? null,
   };
 
   /* -------- GALLERIES -------- */
