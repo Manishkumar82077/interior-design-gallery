@@ -22,7 +22,7 @@ A responsive gallery feed application for browsing interior design images with t
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
+- **Backend**: Next.js API Routes (REST API)
 - **Database**: MySQL (Aiven Cloud)
 - **Deployment**: Vercel
 
@@ -51,7 +51,6 @@ DB_PORT=25060
 DB_USER=your-username
 DB_PASSWORD=your-password
 DB_NAME=revised-cms
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
 4. Run the development server:
@@ -97,6 +96,8 @@ npm run dev
 - `GET /api/tags` - Fetch all available tags
 - `GET /api/galleries?tagId=X` - Fetch galleries (optionally filtered by tag)
 - `GET /api/gallery/[id]` - Fetch gallery detail with similar images
+- `GET /api/profile/[id]` - Fetch Profile detail with associated images
+
 
 ## 🎯 Key Design Decisions
 
@@ -144,14 +145,6 @@ The application uses 4 main tables:
 npm install -g vercel
 vercel
 ```
-
-## 📝 Assumptions Made
-
-1. Database connection is stable and uses SSL (Aiven requirement)
-2. Image URLs from S3 are publicly accessible
-3. Similar images are determined by shared tags
-4. Maximum 100 galleries displayed in feed for performance
-5. Maximum 10 similar images shown per detail page
 
 ## 🐛 Known Issues
 
