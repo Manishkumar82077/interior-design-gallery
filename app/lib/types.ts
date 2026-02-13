@@ -7,6 +7,7 @@ export interface DigitalProfile {
   profile_picture: string | null;
   total_photo_uploaded: number;
   created_at: string;
+  cover_image?: string | null; // ✅ derived from gallery (latest image)
   updated_at: string;
 }
 
@@ -31,4 +32,9 @@ export interface GalleryImage {
 
 export interface GalleryDetail extends GalleryImage {
   similar_images: GalleryImage[];
+}
+
+export interface ProfileWithGalleries {
+  profile: DigitalProfile;
+  galleries: GalleryImage[];
 }

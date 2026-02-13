@@ -1,16 +1,20 @@
-// 
+// app/profile/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProfileWithGalleries } from '@/app/services/profile';
+import { getProfileWithGalleries } from '@/app/services/getProfileWithGalleries';
 
 /* ---------------- Utils ---------------- */
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('en-IN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+function formatDate(date?: string) {
+  if (!date) return '—';
+  const d = new Date(date);
+  return isNaN(d.getTime())
+    ? '—'
+    : d.toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
 }
 
 /* ---------------- Page ---------------- */
@@ -19,7 +23,10 @@ export default async function ProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // ✅ IMPORTANT: unwrap params
   const { id } = await params;
+
+  if (!id) return notFound();
 
   let data;
   try {
@@ -33,35 +40,34 @@ export default async function ProfilePage({
 
   const { profile, galleries } = data;
 
-  if (!profile) return notFound();
-
   return (
     <div className="max-w-full mx-auto px-4 py-6 space-y-10">
       {/* ================= PROFILE HEADER ================= */}
       <section className="space-y-6">
         {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
-        <div className="mx-auto max-w-full px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
+        <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
+          <div className="mx-auto max-w-full px-4 py-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Gallery
-          </Link>
-        </div>
-      </header>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Gallery
+            </Link>
+          </div>
+        </header>
+
         {/* Cover Image */}
         {profile.cover_image && (
-          <div className="relative h-64 w-full overflow-hidden rounded-xl">
+          <div className="relative h-64 w-full overflow-hidden rounded-xl mt-2">
             <Image
               src={profile.cover_image}
               alt={profile.profile_name}
@@ -74,7 +80,6 @@ export default async function ProfilePage({
 
         {/* Profile Info */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          {/* Left */}
           <div className="flex items-center gap-4">
             {profile.profile_picture ? (
               <Image
@@ -98,7 +103,6 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          {/* Right Stats */}
           <div className="flex gap-8 text-sm">
             <div className="text-center">
               <p className="text-xl font-semibold text-gray-900">
@@ -149,7 +153,6 @@ export default async function ProfilePage({
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
-                {/* Tags */}
                 {item.tags?.length > 0 && (
                   <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1">
                     {item.tags.map((tag) => (
