@@ -23,7 +23,7 @@ export default async function ProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // ✅ IMPORTANT: unwrap params
+
   const { id } = await params;
 
   if (!id) return notFound();
